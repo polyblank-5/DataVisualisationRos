@@ -1,0 +1,25 @@
+constants:
+  FRAME_WIDTH : 220.0  # Frame size in simulation units
+  FRAME_HEIGHT : 700.0
+  FRAME_DISCRETIZATION : 2  # Step size
+  SPEED : 0.2  # Weed movement speed
+  ROTATION_ANGLE : 10  # Rotation in degrees
+  SCREEN_WIDTH :  1024 # Pixel width of the window
+  SCREEN_HEIGHT : 768  # Pixel height of the window
+  FONT_SIZE : 16
+  TIMER_PERIOD :
+    VELOCITY_TIMEOUT : 1.05
+    POSITION_TIMEOUT : 1.05
+  DETECTION_AREA :
+    WIDTH : 200
+    HEIGHT : 150
+    Y : 500
+  LASER_AREA :
+    WIDTH : 140
+    HEIGHT : 170
+    Y : 200
+  LASER_SPEED :
+    X : 1
+    Y : 1
+
+

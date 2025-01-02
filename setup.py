@@ -20,6 +20,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+        	'plant_data_visualizer = data_visualisation_pkg.plant_data_visualizer:main',
         ],
     },
+    package_dir={'': 'src'},
+    package_data={'': ['../data_collection_pkg']},
 )
