@@ -19,7 +19,7 @@ class PlantDataVisualizer(Node):
     def __init__(self):
         super().__init__('plant_data_visualizer')
 
-        os.chdir('src/data_collection_pkg')
+        os.chdir('src/data_visualisation_pkg/')
         #package_share_directory = os.path.join(    os.getenv('AMENT_PREFIX_PATH').split(':')[0], 'share/data_collection_pkg/config')
         config_file_path = os.path.join('config/', 'config.yaml')
     
@@ -82,8 +82,10 @@ class PlantDataVisualizer(Node):
         self.plant_positions = json.loads(msg.data)
         
     def draw_frame(self):
-        """Draw the simulation frame, including weeds and numbering."""
-        self.screen.fill(WHITE)
+        """Draw the simulation frame, including grid, two outlined boxes, and circles."""
+        self.screen.fill(WHITE)  # Clear the screen with a white background
+
+        # Draw frame border
         pygame.draw.rect(self.screen, BLACK, (0, 0, self._SCREEN_WIDTH, self._SCREEN_HEIGHT), 2)
 
         # Draw grid
@@ -94,47 +96,38 @@ class PlantDataVisualizer(Node):
             y = i * self._CELL_HEIGHT
             pygame.draw.line(self.screen, GRAY, (0, y), (self._SCREEN_WIDTH, y))
 
-        # Draw weeds
+        # Draw circles
         for weed in self.plant_positions_calc:
             pixel_x = int(weed[0] / self._FRAME_DISCRETIZATION * self._CELL_WIDTH)
             pixel_y = int(weed[1] / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT)
             pygame.draw.circle(self.screen, GREEN, (pixel_x, pixel_y), 5)
-            #id_text = self.font.render(f"{weed.id}", True, BLACK)
-            #self.screen.blit(id_text, (pixel_x + 10, pixel_y - 10))
 
-        # Optional: Draw weeds from weed_list (similar logic as above)
         for weed in self.plant_positions:
-            # Convert weed coordinates to pixels
             pixel_x = int(weed[0] / self._FRAME_DISCRETIZATION * self._CELL_WIDTH)
             pixel_y = int(weed[1] / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT)
             pygame.draw.circle(self.screen, BLACK, (pixel_x, pixel_y), 5)
 
-        # Draw y-axis numbering (right side)
-        for i in range(int(self._FRAME_HEIGHT / self._FRAME_DISCRETIZATION)):
-            label = f"{i * self._FRAME_DISCRETIZATION:.1f}"
-            text = self.font.render(label, True, BLACK)
-            self.screen.blit(text, (self._SCREEN_WIDTH + 10, i * self._CELL_HEIGHT - self._FONT_SIZE // 2))
+        # Draw first box with only borders
+        box1_width, box1_height = 140/ self._FRAME_DISCRETIZATION * self._CELL_WIDTH, 170/ self._FRAME_DISCRETIZATION * self._CELL_HEIGHT
+        box1_y = 200 / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT
+        box1_rect = pygame.Rect(
+            (self._SCREEN_WIDTH // 2) - (box1_width // 2),  # Center x
+            box1_y,  # y position
+            box1_width,
+            box1_height
+        )
+        pygame.draw.rect(self.screen, BLACK, box1_rect, 2)  # Border width = 2
 
-        # Draw x-axis numbering (bottom)
-        # Integer part (e.g., 00000)
-        for i in range(int(self._FRAME_WIDTH / self._FRAME_DISCRETIZATION)):
-            x_pos = i * self._CELL_WIDTH
-            label = f"{int(i * self._FRAME_DISCRETIZATION // 1)}"
-            text = self.font.render(label, True, BLACK)
-            self.screen.blit(text, (x_pos + self._CELL_WIDTH // 4, self._SCREEN_HEIGHT + 5))
-
-        # Dots row (e.g., . . . . .)
-        for i in range(int(self._FRAME_WIDTH / self._FRAME_DISCRETIZATION)):
-            x_pos = i * self._CELL_WIDTH
-            dot_text = self.font.render(".", True, BLACK)
-            self.screen.blit(dot_text, (x_pos + self._CELL_WIDTH // 4, self._SCREEN_HEIGHT + 20))
-
-        # Fractional part row (e.g., 0123456789)
-        for i in range(int(self._FRAME_WIDTH / self._FRAME_DISCRETIZATION)):
-            x_pos = i * self._CELL_WIDTH
-            label = f"{int(i * self._FRAME_DISCRETIZATION % 1 * 10)}"
-            text = self.font.render(label, True, BLACK)
-            self.screen.blit(text, (x_pos + self._CELL_WIDTH // 4, self._SCREEN_HEIGHT + 35))
+        # Draw second box with only borders
+        box2_width, box2_height = 200/ self._FRAME_DISCRETIZATION * self._CELL_WIDTH, 150/ self._FRAME_DISCRETIZATION * self._CELL_HEIGHT
+        box2_y = 500 / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT
+        box2_rect = pygame.Rect(
+            (self._SCREEN_WIDTH // 2) - (box2_width // 2),  # Center x
+            box2_y,  # y position
+            box2_width,
+            box2_height
+        )
+        pygame.draw.rect(self.screen, BLACK, box2_rect, 2)  # Border width = 2
 
         pygame.display.flip()
 
