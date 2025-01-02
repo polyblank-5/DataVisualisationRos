@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import String  # Replace with the appropriate message types for your topics
+from std_msgs.msg import String, Float32MultiArray # Replace with the appropriate message types for your topics
 import json
 import pygame
 from typing import List, Tuple
@@ -13,6 +13,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
 GREEN = (0,255,0)
+RED = (255,0,0)
 
 
 class PlantDataVisualizer(Node):
@@ -62,6 +63,14 @@ class PlantDataVisualizer(Node):
         )
         self.plant_position_subscription
 
+        self.plant_laser_position_subscription = self.create_subscription(
+            Float32MultiArray,             # Replace 'String' with your topic's message type
+            'plant_laser_data_publisher',          # Replace 'topic_1' with the name of your first topic
+            self.callback_plant_laser_position_subscriber,    # Callback for the first topic
+            10                  # QoS depth
+        )
+        self.plant_laser_position_subscription
+
          # Timer to run the simulation loop
         self.timer = self.create_timer(0.2, self.simulation_loop)  # 5 FPS
 
@@ -70,6 +79,7 @@ class PlantDataVisualizer(Node):
 
         self.plant_positions:List[Tuple[float,float]] = []
         self.plant_positions_calc:List[Tuple[float,float]] = []
+        self.plant_laser_positions:Tuple[float,float] = (0.0,0.0)
 
 
     # Callback for the first topic
@@ -80,6 +90,10 @@ class PlantDataVisualizer(Node):
     def callback_plant_position_subscriber(self, msg):
         self.get_logger().info(f'Received from {self.plant_position_subscription.topic_name}: {msg.data}')
         self.plant_positions = json.loads(msg.data)
+
+    def callback_plant_laser_position_subscriber(self, msg):
+        #self.get_logger().info(f'Received from {self.plant_laser_position_subscription.topic_name}: {msg.data}')
+        self.plant_laser_positions = (msg.data[0],msg.data[1])
         
     def draw_frame(self):
         """Draw the simulation frame, including grid, two outlined boxes, and circles."""
@@ -106,6 +120,11 @@ class PlantDataVisualizer(Node):
             pixel_x = int(weed[0] / self._FRAME_DISCRETIZATION * self._CELL_WIDTH)
             pixel_y = int(weed[1] / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT)
             pygame.draw.circle(self.screen, BLACK, (pixel_x, pixel_y), 5)
+
+        laser_x = int(self.plant_laser_positions[0] / self._FRAME_DISCRETIZATION * self._CELL_WIDTH)
+        laser_y = int(self.plant_laser_positions[1] / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT)
+        print(laser_x,laser_y)
+        pygame.draw.circle(self.screen, RED,(laser_x,laser_y),5)
 
         # Draw first box with only borders
         box1_width, box1_height = 140/ self._FRAME_DISCRETIZATION * self._CELL_WIDTH, 170/ self._FRAME_DISCRETIZATION * self._CELL_HEIGHT
