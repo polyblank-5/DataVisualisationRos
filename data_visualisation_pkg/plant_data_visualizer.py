@@ -14,6 +14,7 @@ BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
 GREEN = (0,255,0)
 RED = (255,0,0)
+ORANGE = (255,128,0)
 
 
 class PlantDataVisualizer(Node):
@@ -71,6 +72,14 @@ class PlantDataVisualizer(Node):
         )
         self.plant_laser_position_subscription
 
+        self.subscription_laser_position = self.create_subscription(
+            Float32MultiArray,
+            "laser_position_publisher",
+            self.laser_position_callback,
+            10
+        )
+        self.subscription_laser_position
+
          # Timer to run the simulation loop
         self.timer = self.create_timer(0.2, self.simulation_loop)  # 5 FPS
 
@@ -80,6 +89,7 @@ class PlantDataVisualizer(Node):
         self.plant_positions:List[Tuple[float,float]] = []
         self.plant_positions_calc:List[Tuple[float,float]] = []
         self.plant_laser_positions:Tuple[float,float] = (0.0,0.0)
+        self.laser_positions:Tuple[float,float] = (0.0,0.0)
 
 
     # Callback for the first topic
@@ -94,6 +104,9 @@ class PlantDataVisualizer(Node):
     def callback_plant_laser_position_subscriber(self, msg):
         #self.get_logger().info(f'Received from {self.plant_laser_position_subscription.topic_name}: {msg.data}')
         self.plant_laser_positions = (msg.data[0],msg.data[1])
+
+    def laser_position_callback(self,msg:Float32MultiArray):
+        self.laser_positions = (msg.data[0],msg.data[1])
         
     def draw_frame(self):
         """Draw the simulation frame, including grid, two outlined boxes, and circles."""
@@ -121,10 +134,13 @@ class PlantDataVisualizer(Node):
             pixel_y = int(weed[1] / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT)
             pygame.draw.circle(self.screen, BLACK, (pixel_x, pixel_y), 5)
 
-        laser_x = int(self.plant_laser_positions[0] / self._FRAME_DISCRETIZATION * self._CELL_WIDTH)
-        laser_y = int(self.plant_laser_positions[1] / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT)
-        print(laser_x,laser_y)
-        pygame.draw.circle(self.screen, RED,(laser_x,laser_y),5)
+        plant_laser_area_x = int(self.plant_laser_positions[0] / self._FRAME_DISCRETIZATION * self._CELL_WIDTH)
+        plant_laser_area_y = int(self.plant_laser_positions[1] / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT)
+        pygame.draw.circle(self.screen, RED,(plant_laser_area_x,plant_laser_area_y),5)
+
+        laser_x = int(self.laser_positions[0] / self._FRAME_DISCRETIZATION * self._CELL_WIDTH)
+        laser_y = int(self.laser_positions[1] / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT)
+        pygame.draw.circle(self.screen,ORANGE,(laser_x,laser_y),5)
 
         # Draw first box with only borders
         box1_width, box1_height = 140/ self._FRAME_DISCRETIZATION * self._CELL_WIDTH, 170/ self._FRAME_DISCRETIZATION * self._CELL_HEIGHT
