@@ -10,14 +10,14 @@ VENV_PATHS=(
 ROS_SETUP="/opt/ros/jazzy/setup.bash"
 
 PROGRAMS_COLLECTION=(
-    "python3 /src/data_collection_pkg/data_collection_pkg/plant_position_publisher.py"  # Program for VENV1
-    "python3 /src/data_collection_pkg/data_collection_pkg/plant_velocity_publisher.py"  # Program for VENV2
-    "python3 /src/data_collection_pkg/data_collection_pkg/plant_data_subscriber.py"  # Program for VENV3
+    "python3 src/data_collection_pkg/data_collection_pkg/plant_position_publisher.py"  # Program for VENV1
+    "python3 src/data_collection_pkg/data_collection_pkg/plant_velocity_publisher.py"  # Program for VENV2
+    "python3 src/data_collection_pkg/data_collection_pkg/plant_data_subscriber.py"  # Program for VENV3
 )
-PROGRAM_VISUALIZER="python3 /src/data_visualisation_pkg/data_visualisation_pkg/plant_data_visualizer.py"
+PROGRAM_VISUALIZER="python3 src/data_visualisation_pkg/data_visualisation_pkg/plant_data_visualizer.py"
 PROGRAMS_CONTROL=(
-    "python3 /src/laser_control_pkg/laser_control_pkg/laser_position_publisher.py"
-    "python3 /src/laser_control_pkg/laser_control_pkg/laser_measured_publisher.py"
+    "python3 src/laser_control_pkg/laser_control_pkg/laser_position_publisher.py"
+    "python3 src/laser_control_pkg/laser_control_pkg/laser_measured_publisher.py"
 )
 
 # Function to open a terminal, source venv, ROS, and start a program
