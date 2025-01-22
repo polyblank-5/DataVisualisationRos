@@ -51,7 +51,7 @@ done
 
 
 # Step 3: Open 2 new terminals, each with a different venv and program
+start_terminal "${VENV_PATHS[2]}" "${PROGRAMS_CONTROL[0]}"
 start_terminal "${VENV_PATHS[2]}" "${PROGRAMS_CONTROL[1]}"
-start_terminal "${VENV_PATHS[2]}" "${PROGRAMS_CONTROL[2]}"
 
 echo "All terminals started."
