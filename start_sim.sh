@@ -18,6 +18,7 @@ PROGRAM_VISUALIZER="python3 src/data_visualisation_pkg/data_visualisation_pkg/pl
 PROGRAMS_CONTROL=(
     "python3 src/laser_control_pkg/laser_control_pkg/laser_position_publisher.py"
     "python3 src/laser_control_pkg/laser_control_pkg/laser_measured_publisher.py"
+    "python3 src/laser_control_pkg/laser_control_pkg/laser_control_service.py"
 )
 
 # Function to open a terminal, source venv, ROS, and start a program
@@ -48,10 +49,9 @@ for i in {0..2}; do
     start_terminal "${VENV_PATHS[1]}" "${PROGRAMS_COLLECTION[i]}"
 done
 
-
-
 # Step 3: Open 2 new terminals, each with a different venv and program
-start_terminal "${VENV_PATHS[2]}" "${PROGRAMS_CONTROL[0]}"
-start_terminal "${VENV_PATHS[2]}" "${PROGRAMS_CONTROL[1]}"
+for i in {0..2}; do
+    start_terminal "${VENV_PATHS[2]}" "${PROGRAMS_CONTROL[i]}"
+done
 
 echo "All terminals started."
