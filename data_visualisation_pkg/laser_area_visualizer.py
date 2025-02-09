@@ -19,10 +19,14 @@ GREEN = (0,255,0)
 RED = (255,0,0)
 ORANGE = (255,128,0)
 
-edge1 = (236.8, 262.2)
-edge2 = (161.8, 187.2)
-edge3 = (276.2, 163.6)
-edge4 = (201.2, 88.7)
+edge1 = (252.3, 275.4)
+edge2 = (177.3, 200.4)
+edge3 = (288.3, 193.6)
+edge4 = (213.3, 118.6)
+
+dmlx = -50
+dmly = 75
+dmlz = -30.5 
 
 class LaserAreaVisualizer(Node):
     def __init__(self):
@@ -37,8 +41,8 @@ class LaserAreaVisualizer(Node):
                 config = yaml.safe_load(file)
         
         constants = config['constants']
-        self._FRAME_HEIGHT = constants['FRAME_HEIGHT']
-        self._FRAME_WIDTH = constants['FRAME_WIDTH']
+        self._FRAME_HEIGHT = constants['LASER_VISUALIZER']['FRAME_HEIGHT']
+        self._FRAME_WIDTH = constants['LASER_VISUALIZER']['FRAME_WIDTH']
         self._SCREEN_WIDTH = constants['SCREEN_WIDTH']
         self._SCREEN_HEIGHT = constants['SCREEN_HEIGHT']
         self._FRAME_DISCRETIZATION = constants['FRAME_DISCRETIZATION']
@@ -56,21 +60,21 @@ class LaserAreaVisualizer(Node):
         self.pygame_thread.start()
         
         # Subscription to the first topic
-        self.plant_data_subscription = self.create_subscription(
-            String,             # Replace 'String' with your topic's message type
-            'plant_data_publisher',          # Replace 'topic_1' with the name of your first topic
-            self.callback_plant_data_subscriber,    # Callback for the first topic
-            10                  # QoS depth
-        )
-        self.plant_data_subscription  # Prevent unused variable warning
+        # self.plant_data_subscription = self.create_subscription(
+        #     String,             # Replace 'String' with your topic's message type
+        #     'plant_data_publisher',          # Replace 'topic_1' with the name of your first topic
+        #     self.callback_plant_data_subscriber,    # Callback for the first topic
+        #     10                  # QoS depth
+        # )
+        # self.plant_data_subscription  # Prevent unused variable warning
 
-        self.plant_position_subscription = self.create_subscription(
-            String,             # Replace 'String' with your topic's message type
-            'plant_position_publisher',          # Replace 'topic_1' with the name of your first topic
-            self.callback_plant_position_subscriber,    # Callback for the first topic
-            10                  # QoS depth
-        )
-        self.plant_position_subscription
+        # self.plant_position_subscription = self.create_subscription(
+        #     String,             # Replace 'String' with your topic's message type
+        #     'plant_position_publisher',          # Replace 'topic_1' with the name of your first topic
+        #     self.callback_plant_position_subscriber,    # Callback for the first topic
+        #     10                  # QoS depth
+        # )
+        # self.plant_position_subscription
 
         self.plant_laser_position_subscription = self.create_subscription(
             Float32MultiArray,             # Replace 'String' with your topic's message type
@@ -94,26 +98,27 @@ class LaserAreaVisualizer(Node):
         # Initialize clock for Pygame
         self.clock = pygame.time.Clock()
 
-        self.plant_positions:List[Tuple[float,float]] = []
-        self.plant_positions_calc:List[Tuple[float,float]] = []
+        # self.plant_positions:List[Tuple[float,float]] = []
+        # self.plant_positions_calc:List[Tuple[float,float]] = []
         self.plant_laser_positions:Tuple[float,float] = (0.0,0.0)
         self.laser_positions:Tuple[float,float] = (0.0,0.0)
 
 
     # Callback for the first topic
-    def callback_plant_data_subscriber(self, msg):
-        self.get_logger().info(f'Received from {self.plant_data_subscription.topic_name}: {msg.data}')
-        self.plant_positions_calc = json.loads(msg.data)  
+    # def callback_plant_data_subscriber(self, msg):
+    #     self.get_logger().info(f'Received from {self.plant_data_subscription.topic_name}: {msg.data}')
+    #     self.plant_positions_calc = json.loads(msg.data)  
 
-    def callback_plant_position_subscriber(self, msg):
-        self.get_logger().info(f'Received from {self.plant_position_subscription.topic_name}: {msg.data}')
-        self.plant_positions = json.loads(msg.data)
+    # def callback_plant_position_subscriber(self, msg):
+    #     self.get_logger().info(f'Received from {self.plant_position_subscription.topic_name}: {msg.data}')
+    #     self.plant_positions = json.loads(msg.data)
 
     def callback_plant_laser_position_subscriber(self, msg):
-        #self.get_logger().info(f'Received from {self.plant_laser_position_subscription.topic_name}: {msg.data}')
+        # self.get_logger().info(f'Received from {self.plant_laser_position_subscription.topic_name}: {msg.data}')
         self.plant_laser_positions = (msg.data[0],msg.data[1])
 
     def laser_position_callback(self,msg:Float32MultiArray):
+        # self.get_logger().info(f'Received from {self.subscription_laser_position.topic_name}: {msg.data}')
         self.laser_positions = (msg.data[0],msg.data[1])
         
     def draw_frame(self):
@@ -122,7 +127,8 @@ class LaserAreaVisualizer(Node):
 
         # Draw frame border
         #pygame.draw.rect(self.screen, BLACK, (0, 0, self._SCREEN_WIDTH, self._SCREEN_HEIGHT), 2)
-        pygame.draw.polygon(self.screen, BLACK, [edge1, edge2, edge4, edge3], width=2)
+        edges = [[item[0]/ self._FRAME_DISCRETIZATION * self._CELL_WIDTH,item[1]/ self._FRAME_DISCRETIZATION * self._CELL_HEIGHT]for item in [edge1,edge2,edge3,edge4]]
+        pygame.draw.polygon(self.screen, BLACK, [edges[0], edges[1], edges[3], edges[2]], width=2) # TODO transform parameters to picture frame
         # Draw grid
         for i in range(int(self._FRAME_WIDTH / self._FRAME_DISCRETIZATION)):
             x = i * self._CELL_WIDTH
@@ -132,34 +138,40 @@ class LaserAreaVisualizer(Node):
             pygame.draw.line(self.screen, GRAY, (0, y), (self._SCREEN_WIDTH, y))
 
         # Draw circles
-        for weed in self.plant_positions_calc:
-            pixel_x = int(weed[0] / self._FRAME_DISCRETIZATION * self._CELL_WIDTH)
-            pixel_y = int(weed[1] / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT)
-            pygame.draw.circle(self.screen, GREEN, (pixel_x, pixel_y), 5)
+        # for weed in self.plant_positions_calc:
+        #     pixel_x = int(weed[0] / self._FRAME_DISCRETIZATION * self._CELL_WIDTH)
+        #     pixel_y = int(weed[1] / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT)
+        #     pygame.draw.circle(self.screen, GREEN, (pixel_x, pixel_y), 5)
 
-        for weed in self.plant_positions:
-            pixel_x = int(weed[0] / self._FRAME_DISCRETIZATION * self._CELL_WIDTH)
-            pixel_y = int(weed[1] / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT)
-            pygame.draw.circle(self.screen, BLACK, (pixel_x, pixel_y), 5)
-
-        plant_laser_area_x = int(self.plant_laser_positions[0] / self._FRAME_DISCRETIZATION * self._CELL_WIDTH)
-        plant_laser_area_y = int(self.plant_laser_positions[1] / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT)
+        # for weed in self.plant_positions:
+        #     pixel_x = int(weed[0] / self._FRAME_DISCRETIZATION * self._CELL_WIDTH)
+        #     pixel_y = int(weed[1] / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT)
+        #     pygame.draw.circle(self.screen, BLACK, (pixel_x, pixel_y), 5)
+        
+        # print(f"Plat Positions: {self.plant_laser_positions}")
+        transformed_plant_laser_area_position = self.inverse_transform.inv_kin_km(self.plant_laser_positions[0]-dmlx-110,self.plant_laser_positions[1]-dmly,-120-dmlz)
+        plant_laser_area_x = int(transformed_plant_laser_area_position[0] / self._FRAME_DISCRETIZATION * self._CELL_WIDTH)
+        plant_laser_area_y = int(transformed_plant_laser_area_position[1] / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT)
+        print(f"Transformed Plant Position in Laser Area:{plant_laser_area_x},{plant_laser_area_y}")
         pygame.draw.circle(self.screen, RED,(plant_laser_area_x,plant_laser_area_y),5)
 
-        laser_x = int(self.laser_positions[0] / self._FRAME_DISCRETIZATION * self._CELL_WIDTH)
-        laser_y = int(self.laser_positions[1] / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT)
+        # print(f"Laser Position: {self.laser_positions}")
+        transformed_laser_position = self.inverse_transform.inv_kin_km(self.laser_positions[0]-dmlx-110,self.laser_positions[1]-dmly,-120-dmlz)
+        laser_x = int(transformed_laser_position[0] / self._FRAME_DISCRETIZATION * self._CELL_WIDTH)
+        laser_y = int(transformed_laser_position[1] / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT)
+        print(f"Transformed Laser Position in Laser Area:{laser_x},{laser_y}")
         pygame.draw.circle(self.screen,ORANGE,(laser_x,laser_y),5)
 
         # Draw first box with only borders
-        box1_width, box1_height = 140/ self._FRAME_DISCRETIZATION * self._CELL_WIDTH, 170/ self._FRAME_DISCRETIZATION * self._CELL_HEIGHT
-        box1_y = 200 / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT
-        box1_rect = pygame.Rect(
-            (self._SCREEN_WIDTH // 2) - (box1_width // 2),  # Center x
-            box1_y,  # y position
-            box1_width,
-            box1_height
-        )
-        pygame.draw.rect(self.screen, BLACK, box1_rect, 2)  # Border width = 2
+        # box1_width, box1_height = 140/ self._FRAME_DISCRETIZATION * self._CELL_WIDTH, 170/ self._FRAME_DISCRETIZATION * self._CELL_HEIGHT
+        # box1_y = 200 / self._FRAME_DISCRETIZATION * self._CELL_HEIGHT
+        # box1_rect = pygame.Rect(
+        #     (self._SCREEN_WIDTH // 2) - (box1_width // 2),  # Center x
+        #     box1_y,  # y position
+        #     box1_width,
+        #     box1_height
+        # )
+        # pygame.draw.rect(self.screen, BLACK, box1_rect, 2)  # Border width = 2
 
         pygame.display.flip()
 

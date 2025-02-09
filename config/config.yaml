@@ -1,6 +1,10 @@
 constants:
-  FRAME_WIDTH : 220.0  # Frame size in simulation units
-  FRAME_HEIGHT : 700.0
+  PLANT_DATA_VISUALIZER:
+    FRAME_WIDTH : 220.0  # Frame size in simulation units
+    FRAME_HEIGHT : 700.0
+  LASER_VISUALIZER:
+    FRAME_WIDTH : 400
+    FRAME_HEIGHT : 400
   FRAME_DISCRETIZATION : 2  # Step size
   SPEED : 0.2  # Weed movement speed
   ROTATION_ANGLE : 10  # Rotation in degrees

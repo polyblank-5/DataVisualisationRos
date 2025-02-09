@@ -14,7 +14,10 @@ PROGRAMS_COLLECTION=(
     "python3 src/data_collection_pkg/data_collection_pkg/plant_velocity_publisher.py"  # Program for VENV2
     "python3 src/data_collection_pkg/data_collection_pkg/plant_data_subscriber.py"  # Program for VENV3
 )
-PROGRAM_VISUALIZER="python3 src/data_visualisation_pkg/data_visualisation_pkg/plant_data_visualizer.py"
+PROGRAM_VISUALIZER=(
+    "python3 src/data_visualisation_pkg/data_visualisation_pkg/plant_data_visualizer.py"
+    "python3 src/data_visualisation_pkg/data_visualisation_pkg/laser_area_visualizer.py"
+)
 PROGRAMS_CONTROL=(
     "python3 src/laser_control_pkg/laser_control_pkg/laser_position_publisher.py"
     "python3 src/laser_control_pkg/laser_control_pkg/laser_measured_publisher.py"
@@ -42,7 +45,9 @@ cd ../.. || exit
 echo "Executing commands in $(pwd)"
 
 # Step 2: Open a new terminal, source VENV1, and start PROGRAM1 again
-start_terminal "${VENV_PATHS[0]}" "${PROGRAM_VISUALIZER}"
+for i in {0..1}; do
+    start_terminal "${VENV_PATHS[0]}" "${PROGRAM_VISUALIZER[i]}"
+done
 
 # Step 1: Open 3 terminals, each with a different venv and program
 for i in {0..2}; do

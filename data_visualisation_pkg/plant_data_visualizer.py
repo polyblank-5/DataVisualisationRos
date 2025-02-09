@@ -29,8 +29,8 @@ class PlantDataVisualizer(Node):
                 config = yaml.safe_load(file)
         
         constants = config['constants']
-        self._FRAME_HEIGHT = constants['FRAME_HEIGHT']
-        self._FRAME_WIDTH = constants['FRAME_WIDTH']
+        self._FRAME_HEIGHT = constants["PLANT_DATA_VISUALIZER"]['FRAME_HEIGHT']
+        self._FRAME_WIDTH = constants['PLANT_DATA_VISUALIZER']['FRAME_WIDTH']
         self._SCREEN_WIDTH = constants['SCREEN_WIDTH']
         self._SCREEN_HEIGHT = constants['SCREEN_HEIGHT']
         self._FRAME_DISCRETIZATION = constants['FRAME_DISCRETIZATION']
